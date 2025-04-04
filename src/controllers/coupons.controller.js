@@ -30,7 +30,6 @@ export const createNewCouponController = tryCatch(async(req,res) => {
     const cq = await client.query(
         `insert into coupons(coupon_name, sku_id, business_id, discount_method) values ($1, $2, $3, $4) RETURNING id;`, [coupon_name, sku_id, id, discount_method]
     );
-    throw new AppError();
     
 
     const coupon_id = cq.rows[0].id;

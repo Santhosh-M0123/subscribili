@@ -75,4 +75,4 @@ create table discount_metrices(
     created_at date default current_timestamp,
     updated_at date default current_timestamp,
     deleted_at date default null
-)
+);
