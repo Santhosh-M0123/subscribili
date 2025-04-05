@@ -1,78 +1,67 @@
-CREATE DATABASE coupon_db;
+CREATE TABLE business (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
 
+INSERT INTO business (name, email) VALUES ('subscribili', 'info@subscribili.in');
 
-entities
-business
-coupons
-coupons_constraints
-coupons_transactions
-discount_values
-budget_limits
-coupon_usages
+CREATE TABLE coupons (
+    id SERIAL PRIMARY KEY,
+    coupon_name VARCHAR(255) NOT NULL,
+    sku_id VARCHAR(100) NOT NULL UNIQUE,
+    status BOOLEAN DEFAULT true,
+    business_id INT REFERENCES business(id),
+    discount_metrices INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
 
-create table business{
-    id serial int primary key,
-    name varchar(255) not null,
-    email varchat(255) not null unique,
-    created_at date default current_timestamp,
-    updated_at date default current_timestamp,
-    deleted_at date default null
-}
+CREATE UNIQUE INDEX unique_active_coupon_name ON coupons (coupon_name)
+WHERE status = true;
 
-insert into business(name, email) values("subscribili", "info@subscribili.in");
+CREATE TABLE coupons_constraints (
+    id SERIAL PRIMARY KEY,
+    usage_count INT,
+    valid_till BIGINT,  -- Unix Timestamp
+    starts_from BIGINT, -- Unix Timestamp
+    coupon_id INT REFERENCES coupons(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
 
-create table coupons(
-    id serial primary key,
-    coupon_name varchar(255) not null,
-    sku_id varchar(100) not null unique,
-    status boolean default true,
-    business_id int references business,
-    discount_metrices int not null,
-    created_at date default current_timestamp,
-    updated_at date default current_timestamp,
-    deleted_at date default null
-)
+CREATE TABLE coupons_transactions (
+    id SERIAL PRIMARY KEY,
+    coupon_id INT REFERENCES coupons(id) ON DELETE CASCADE,
+    initial_state INT,
+    current_state INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
 
-create table coupons_constraints(
-    id serial primary key,
-    usage_count int,
-    valid_till date,
-    starts_from date,
-    coupon_id int references coupons,
-    created_at date default current_timestamp,
-    updated_at date default current_timestamp,
-    deleted_at date default null
-)
+CREATE TABLE coupons_budget_constraints (
+    id SERIAL PRIMARY KEY,
+    coupon_id INT REFERENCES coupons(id) ON DELETE CASCADE,
+    budget_value INT NOT NULL,
+    alert_value INT NOT NULL,
+    max_allowed_limits INT NOT NULL,
+    budget_remains INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
 
-create table coupons_transactions(
-    id serial primary key,
-    coupon_id int references coupons,
-    initial_state int,
-    current_state int,
-    created_at date default current_timestamp,
-    updated_at date default current_timestamp,
-    deleted_at date default null
-)
-
-create table coupons_budget_constraints(
-    id serial primary key,
-    coupon_id int references coupons,
-    budget_value int not null,
-    alert_value int not null,
-    max_allowed_limits int not null,
-    buget_remains int not null,
-    created_at date default current_timestamp,
-    updated_at date default current_timestamp,
-    deleted_at date default null
-)
-
-
-create table discount_metrices(
-    id serial primary key,
-    coupon_id int references coupons,
-    price int default 0,
-    percentage int default 0,
-    created_at date default current_timestamp,
-    updated_at date default current_timestamp,
-    deleted_at date default null
+CREATE TABLE discount_metrices (
+    id SERIAL PRIMARY KEY,
+    coupon_id INT REFERENCES coupons(id) ON DELETE CASCADE,
+    discount_value INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
 );

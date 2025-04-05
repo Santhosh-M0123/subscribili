@@ -1,28 +1,16 @@
-import pg from 'pg'
-const { Client } = pg
+import pkg from 'pg';
+const { Pool } = pkg;
 
-export const client = new Client({
-    user: 'postgres',
-    password: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    database: 'saco',
-  })
-// await client.connect()
- 
-// try {
-//    const res = await client.query('SELECT $1::text as message', ['Hello world!'])
-//    console.log(res.rows[0].message) // Hello world!
-// } catch (err) {
-//    console.error(err);
-// } finally {
-//    await client.end()
-// }
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'saco_v2',
+  password: 'postgres',
+  port: 5432,
+});
 
-// client.connect((err) => {
-//     client.query('SELECT $1::text as message', ['Hello world!'], (err, res) => {
-//       console.log(err ? err.stack : res.rows[0].message) // Hello World!
-//       client.end()
-//     })
-//  })
-  
+// Normal query usage
+export const query = (text, params) => pool.query(text, params);
+
+// Export the pool for transactions
+export const getClient = async () => await pool.connect();
